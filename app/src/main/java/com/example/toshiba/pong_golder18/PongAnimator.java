@@ -22,14 +22,15 @@ public class PongAnimator implements Animator {
     private boolean reverseX = false;
     private boolean reverseY = false;
     // current position of paddle
-    private float paddleX = 65;
-    private float paddleY = 65;
+    private float paddleLeft = 500;
+    private float paddleRight = 700;
     // current position of ball
     private float ballX = 65;
     private float ballY = 65;
 
     private int width = 1536; // width of our surface
-    private int height = 2048; // height of our surface
+    private int height = 2000; // height of our surface
+    private int speed = 15; // speed of the ball
     /**
      * Interval between animation frames: .03 seconds (i.e., about 33 times
      * per second).
@@ -38,7 +39,7 @@ public class PongAnimator implements Animator {
      */
     @Override
     public int interval() {
-        return 10;
+        return speed;
     }
 
     /**
@@ -109,12 +110,10 @@ public class PongAnimator implements Animator {
         redPaint.setColor(0xff0000ff);
 
         //TODO: Draw paddle to tick
-        /*
         Paint paddlePaint = new Paint();
         paddlePaint.setColor(Color.BLACK);
-        g.drawRect(paddleX, paddleY, 100.0f, 50.0f, paddlePaint);
+        g.drawRect(paddleLeft, 1800, paddleRight, 1850, paddlePaint);
         paddlePaint.setColor(0xff0000ff);
-        */
     }
 
     @Override
@@ -122,20 +121,25 @@ public class PongAnimator implements Animator {
 
         event.getEdgeFlags();//??
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            goBackwards = !goBackwards;
+
         }
         else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-            paddleX = event.getX();
-            paddleY = event.getY();
+            paddleLeft = event.getX()-100;
+            paddleRight = event.getX()+100;
         }
         else if (event.getAction() == MotionEvent.ACTION_UP) {
-            paddleX = event.getX();
-            paddleY = event.getY();
+            paddleLeft = event.getX()-100;
+            paddleRight = event.getX()+100;
         }
 
-        if( paddleX == ballX && paddleY == ballY ) {
-            reverseX = !reverseX;
-            reverseY = !reverseY;
+        if( ballY > 1770 ) {
+            //Hits the paddle
+            if ( ballX > paddleLeft && ballX < paddleRight ) {
+                reverseY = !reverseY;
+            }
+            else {
+                //restart
+            }
         }
     }
 
@@ -148,9 +152,5 @@ public class PongAnimator implements Animator {
         // set our instance variable
         goBackwards = b;
     }
-
-    //Setters
-    public void setWidth ( int initwidth ) { width = initwidth; }
-    public void setHeight ( int initheight ) { height = initheight; }
 }
 
