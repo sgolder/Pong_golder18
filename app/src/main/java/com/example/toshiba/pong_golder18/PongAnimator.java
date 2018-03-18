@@ -16,7 +16,8 @@ import android.view.MotionEvent;
 public class PongAnimator implements Animator {
 
     //instance variables
-    private int count = 0; // counts the number of logical clock ticks
+    private int countX = 0; // counts the number of logical clock ticks
+    private int countY = 0;
     private boolean goBackwards = false; // whether clock is ticking backwards
     private boolean reverseX = false;
     private boolean reverseY = false;
@@ -70,11 +71,18 @@ public class PongAnimator implements Animator {
     public void tick(Canvas g) {
 // bump our count either up or down by one, depending on whether
         // we are in "backwards mode".
-        if (goBackwards) {
-            count--;
+        if (reverseX) {
+            countX--;
         }
         else {
-            count++;
+            countX++;
+        }
+
+        if(reverseY) {
+            countY--;
+        }
+        else {
+            countY++;
         }
 
         // Determine the pixel position of our ball.  Multiplying by 15
@@ -84,14 +92,14 @@ public class PongAnimator implements Animator {
         // (since our canvas size is 600 in each dimension)
 
         // attempt ball gravity
-        ballX = (count*15)%width;
-        ballY = (count*15)%height;
+        ballX = (countX*15)%width;
+        ballY = (countY*15)%height;
         Log.i("PongAnimator", "BallX: "+ballX);
         if ( ballX >= (width-10) || ballX <= 10 ) {
-            goBackwards = !goBackwards;
+            reverseX = !reverseX;
         }
         if ( ballY >= (height-10) || ballY <= 10 ) {
-            goBackwards = !goBackwards;
+            reverseY = !reverseY;
         }
 
         // Draw the ball in the correct position.
