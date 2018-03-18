@@ -1,0 +1,12 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/LinearLayout"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
+
+    <com.example.toshiba.pong_golder18.AnimationSurface
+        android:id="@+id/animationSurface"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"></com.example.toshiba.pong_golder18.AnimationSurface>
+
+</LinearLayout>
+
