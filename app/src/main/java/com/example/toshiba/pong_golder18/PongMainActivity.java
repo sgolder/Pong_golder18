@@ -34,7 +34,7 @@ public class PongMainActivity extends Activity {
 
         //My animator
         PongAnimator myAnimator = new PongAnimator();
+        //myAnimator.reset();
         mySurface.setAnimator(myAnimator);
-
     }
 }

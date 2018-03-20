@@ -6,6 +6,8 @@ import android.graphics.Paint;
 import android.util.Log;
 import android.view.MotionEvent;
 
+import java.util.Random;
+
 /**
  * class that animates the ball to play the game of pong
  *
@@ -16,8 +18,8 @@ import android.view.MotionEvent;
 public class PongAnimator implements Animator {
 
     //instance variables
-    private int countX = 0; // counts the number of logical clock ticks
-    private int countY = 0;
+    private int countX = 50; // counts the number of logical clock ticks
+    private int countY = 50;
     private boolean goBackwards = false; // whether clock is ticking backwards
     private boolean reverseX = false;
     private boolean reverseY = false;
@@ -31,6 +33,7 @@ public class PongAnimator implements Animator {
     private int width = 1536; // width of our surface
     private int height = 2000; // height of our surface
     private int speed = 15; // speed of the ball
+
     /**
      * Interval between animation frames: .03 seconds (i.e., about 33 times
      * per second).
@@ -78,7 +81,6 @@ public class PongAnimator implements Animator {
         else {
             countX++;
         }
-
         if(reverseY) {
             countY--;
         }
@@ -102,6 +104,20 @@ public class PongAnimator implements Animator {
         if ( ballY >= (height-10) || ballY <= 10 ) {
             reverseY = !reverseY;
         }
+        if( ballY > 1750 ) {
+            // Hits the paddle
+            if ( ballX > paddleLeft && ballX < paddleRight ) {
+                reverseY = !reverseY;
+            }
+            // Misses the paddle
+            else {
+                Random rand = new Random();
+                ballX = rand.nextInt(width+10);
+                ballY = 1800;
+                reverseX = rand.nextBoolean();
+                reverseY = true;
+            }
+        }
 
         // Draw the ball in the correct position.
         Paint redPaint = new Paint();
@@ -112,7 +128,7 @@ public class PongAnimator implements Animator {
         //TODO: Draw paddle to tick
         Paint paddlePaint = new Paint();
         paddlePaint.setColor(Color.BLACK);
-        g.drawRect(paddleLeft, 1800, paddleRight, 1850, paddlePaint);
+        g.drawRect(paddleLeft, 1800, paddleRight, 1810, paddlePaint);
         paddlePaint.setColor(0xff0000ff);
     }
 
@@ -131,26 +147,24 @@ public class PongAnimator implements Animator {
             paddleLeft = event.getX()-100;
             paddleRight = event.getX()+100;
         }
-
-        if( ballY > 1770 ) {
-            //Hits the paddle
-            if ( ballX > paddleLeft && ballX < paddleRight ) {
-                reverseY = !reverseY;
-            }
-            else {
-                //restart
-            }
-        }
     }
 
     /**
      * Tells the animation whether to go backwards.
      *
-     * @param b true iff animation is to go backwards.
+     * @param b true if animation is to go backwards.
      */
     public void goBackwards(boolean b) {
         // set our instance variable
         goBackwards = b;
+    }
+
+    public void reset() {
+        Random rand = new Random();
+        ballX = rand.nextInt(width+10);
+        ballY = 1800;
+        reverseX = rand.nextBoolean();
+        reverseY = true;
     }
 }
 
