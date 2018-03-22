@@ -2,9 +2,6 @@ package com.example.toshiba.pong_golder18;
 
 import android.os.Bundle;
 import android.app.Activity;
-import android.util.Log;
-import android.view.Menu;
-import android.widget.LinearLayout;
 
 /**
  * PongMainActivity

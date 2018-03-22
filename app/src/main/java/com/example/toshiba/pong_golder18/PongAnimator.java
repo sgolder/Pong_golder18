@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.MotionEvent;
 
 import java.util.Random;
-
 /**
  * class that animates the ball to play the game of pong
  *
@@ -18,21 +17,27 @@ import java.util.Random;
 public class PongAnimator implements Animator {
 
     //instance variables
-    private int countX = 50; // counts the number of logical clock ticks
-    private int countY = 50;
-    private boolean goBackwards = false; // whether clock is ticking backwards
-    private boolean reverseX = false;
-    private boolean reverseY = false;
-    // current position of paddle
+    private int countX = 150; // counts the number of logical clock ticks
+    private int countY = 150;
+
+    // features of the paddle
     private float paddleLeft = 500;
     private float paddleRight = 700;
-    // current position of ball
+    private float paddleSize = 100;
+
+    // features of the ball
+    private boolean reverseX = false;
+    private boolean reverseY = false;
     private float ballX = 65;
     private float ballY = 65;
+    private int speedX = 30; // speed of the ball
+    private int speedY = 30; // speed of the ball
 
     private int width = 1536; // width of our surface
     private int height = 2000; // height of our surface
-    private int speed = 15; // speed of the ball
+
+    private boolean betweenPlay = false;
+
 
     /**
      * Interval between animation frames: .03 seconds (i.e., about 33 times
@@ -42,7 +47,7 @@ public class PongAnimator implements Animator {
      */
     @Override
     public int interval() {
-        return speed;
+        return 30;
     }
 
     /**
@@ -57,6 +62,9 @@ public class PongAnimator implements Animator {
 
     @Override
     public boolean doPause() {
+        if( betweenPlay ) {
+            return true;
+        }
         return false;
     }
 
@@ -87,84 +95,130 @@ public class PongAnimator implements Animator {
         else {
             countY++;
         }
-
         // Determine the pixel position of our ball.  Multiplying by 15
         // has the effect of moving 15 pixel per frame.  Modding by 600
         // (with the appropriate correction if the value was negative)
         // has the effect of "wrapping around" when we get to either end
         // (since our canvas size is 600 in each dimension)
-
-        // attempt ball gravity
-        ballX = (countX*15)%width;
-        ballY = (countY*15)%height;
-        Log.i("PongAnimator", "BallX: "+ballX);
-        if ( ballX >= (width-10) || ballX <= 10 ) {
+        ballX = (countX*speedX)%width;
+        ballY = (countY*speedY)%height;
+        if ( ballX+50 >= 1500 || ballX-50 <= 50 ) {
             reverseX = !reverseX;
+            if( ballX > 1555 || ballX < 50) {
+                newBall();
+            }
         }
-        if ( ballY >= (height-10) || ballY <= 10 ) {
+        if ( ballY-50 <= 50 ) {
             reverseY = !reverseY;
-        }
-        if( ballY > 1750 ) {
-            // Hits the paddle
-            if ( ballX > paddleLeft && ballX < paddleRight ) {
-                reverseY = !reverseY;
-            }
-            // Misses the paddle
-            else {
-                Random rand = new Random();
-                ballX = rand.nextInt(width+10);
-                ballY = 1800;
-                reverseX = rand.nextBoolean();
-                reverseY = true;
+            if( ballY < 50) {
+                newBall();
             }
         }
+
+        // Draw walls
+        Paint wall = new Paint();
+        wall.setColor(Color.BLACK);
+        wall.setStrokeWidth(10.0f);
+        g.drawLine(50, 50, 50, 1850, wall);         // left
+        g.drawLine(50, 50, 1500, 50, wall);         // top
+        g.drawLine(1500, 50, 1500, 1850, wall);     // right
+        g.drawLine(50, 1850, 1500, 1850, wall);         // bottom
 
         // Draw the ball in the correct position.
         Paint redPaint = new Paint();
         redPaint.setColor(Color.RED);
-        g.drawCircle(ballX, ballY, 60, redPaint);
+        g.drawCircle(ballX, ballY, 50, redPaint);
         redPaint.setColor(0xff0000ff);
 
-        //TODO: Draw paddle to tick
+        // Draw paddle in correct position
         Paint paddlePaint = new Paint();
         paddlePaint.setColor(Color.BLACK);
-        g.drawRect(paddleLeft, 1800, paddleRight, 1810, paddlePaint);
+        g.drawRect(paddleLeft, 1800, paddleRight, 1825, paddlePaint);
         paddlePaint.setColor(0xff0000ff);
+
+
+
+        if( ballY+50 > 1800 ) {
+            // Hits the paddle
+            if ( ballX+50 > paddleLeft && ballX-50 < paddleRight ) {
+                reverseY = !reverseY;
+                Log.i("PongAnimator", "Bouncy bounce");
+            }
+            // Misses the paddle
+            else if ( ballY < 2000 ) {
+                Log.i("PongAnimator", "Misses the paddle");
+                Paint restart = new Paint();
+                restart.setColor(Color.BLACK);
+                //External Reference
+                //https://developer.android.com/reference/android/graphics/Paint.html
+                restart.setTextSize(40.0f);
+                g.drawText("Tap screen to begin with new ball", 500, 700, restart);
+                betweenPlay = true;
+
+                // Draw play mode buttons
+                Paint easyMode = new Paint();
+                easyMode.setColor(Color.GREEN);
+                g.drawRect(125, 100, 525, 200, easyMode);
+                Paint mediumMode = new Paint();
+                mediumMode.setColor(Color.YELLOW);
+                g.drawRect(575, 100, 975, 200, mediumMode);
+                Paint difficultMode = new Paint();
+                difficultMode.setColor(Color.RED);
+                g.drawRect(1025, 100, 1425, 200, difficultMode);
+            }
+        }
     }
 
     @Override
     public void onTouch(MotionEvent event) {
-
-        event.getEdgeFlags();//??
+        float eventX = event.getX();
+        float eventY = event.getY();
+        // TODO: Create new method for changing difficulty?
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            if( betweenPlay ) {
+                // In the top area with the buttons
+                if( eventY > 100 && eventY < 200 ) {
+                    if( eventX > 125 && eventX < 525 ) {      // easy
+                        paddleSize = 200;
+                    }
+                    else if( eventX > 575 && eventX < 975 ) { // med
+                        paddleSize = 100;
+                    }
+                    else if( eventX > 1025 && eventX < 1425) { // dif
+                        paddleSize = 25;
+                    }
+                    else { // not on a button
+                        newBall();
+                        betweenPlay = false;
+                    }
+                }
+                // Somewhere else on the screen
+                else {
+                    newBall();
+                    betweenPlay = false;
+                }
 
+            }
         }
         else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-            paddleLeft = event.getX()-100;
-            paddleRight = event.getX()+100;
+            paddleLeft = event.getX()-paddleSize;
+            paddleRight = event.getX()+paddleSize;
         }
         else if (event.getAction() == MotionEvent.ACTION_UP) {
-            paddleLeft = event.getX()-100;
-            paddleRight = event.getX()+100;
+            paddleLeft = event.getX()-paddleSize;
+            paddleRight = event.getX()+paddleSize;
         }
     }
 
-    /**
-     * Tells the animation whether to go backwards.
-     *
-     * @param b true if animation is to go backwards.
-     */
-    public void goBackwards(boolean b) {
-        // set our instance variable
-        goBackwards = b;
-    }
-
-    public void reset() {
+    public void newBall() {
         Random rand = new Random();
-        ballX = rand.nextInt(width+10);
-        ballY = 1800;
+        //countX = rand.nextInt(width-50)+50;
+        countX = 150;
+        countY = 150;
         reverseX = rand.nextBoolean();
         reverseY = true;
+        speedX = rand.nextInt(50)+5;
+        speedY = rand.nextInt(50)+5;
     }
 }
 
