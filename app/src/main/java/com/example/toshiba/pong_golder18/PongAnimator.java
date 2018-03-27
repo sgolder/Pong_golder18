@@ -24,10 +24,14 @@ public class PongAnimator implements Animator {
     private int countX = 150; // counts the number of logical clock ticks
     private int countY = 150;
 
-    // Properties of the paddle
-    private float paddleLeft = 500;
-    private float paddleRight = 700;
+    // Properties of the player's paddle
+    private float playerPaddleLeft = 500;
+    private float playerPaddleRight = 700;
     private float paddleSize = 100;
+
+    // Properties of computer's paddle
+    private float compPaddleLeft = 500;
+    private float compPaddleRight = 700;
 
     // Properties of the ball
     private boolean reverseX = false;
@@ -40,6 +44,9 @@ public class PongAnimator implements Animator {
     // Properties of screen
     private int width = 1536; // width of our surface
     private int height = 2000; // height of our surface
+
+    private int playerScore = 0;
+    private int computerScore = 0;
 
     private boolean betweenGames = false;
 
@@ -77,13 +84,28 @@ public class PongAnimator implements Animator {
         }
         duringGameView(g);
 
-        if( ballY+50 > 1800 ) { // If ball reaches the paddle height
+        // If ball reaches the player paddle height
+        if( ballY+50 > 1800 ) { // Player paddle
             // Hits the paddle, reverse as if hitting a wall
-            if ( ballX+50 > paddleLeft && ballX-50 < paddleRight ) {
+            if ( ballX+50 > playerPaddleLeft && ballX-50 < playerPaddleRight ) {
+                playerScore++;
                 reverseY = !reverseY;
             }
-            // Misses the paddle
+            // Misses player's paddle
             else if ( ballY < 2000 ) {
+                playerScore =- 5;
+                betweenGameView(g);
+            }
+        }
+        else if( ballY-50 < 200 ) { // Computer paddle
+            // Hits computer paddle, reverse as if hitting a wall
+            if ( ballX+50 > compPaddleLeft && ballX-50 < compPaddleRight ) {
+                computerScore++;
+                reverseY = !reverseY;
+            }
+            // Misses computer paddle
+            else if ( ballY < 100 ) {
+                computerScore =- 5;
                 betweenGameView(g);
             }
         }
@@ -127,12 +149,12 @@ public class PongAnimator implements Animator {
         }
         // User is moving the paddle
         else if (event.getAction() == MotionEvent.ACTION_MOVE) {
-            paddleLeft = event.getX()-paddleSize;
-            paddleRight = event.getX()+paddleSize;
+            playerPaddleLeft = event.getX()-paddleSize;
+            playerPaddleRight = event.getX()+paddleSize;
         }
         else if (event.getAction() == MotionEvent.ACTION_UP) {
-            paddleLeft = event.getX()-paddleSize;
-            paddleRight = event.getX()+paddleSize;
+            playerPaddleLeft = event.getX()-paddleSize;
+            playerPaddleRight = event.getX()+paddleSize;
         }
     }
 
@@ -152,11 +174,25 @@ public class PongAnimator implements Animator {
         g.drawCircle(ballX, ballY, 50, ballPaint);
         ballPaint.setColor(0xff0000ff);
 
-        // Draw paddle in correct position
+        // Draw player's paddle
         Paint paddlePaint = new Paint();
         paddlePaint.setColor(Color.BLACK);
-        g.drawRect(paddleLeft, 1800, paddleRight, 1825, paddlePaint);
+        g.drawRect(playerPaddleLeft, 1800, playerPaddleRight, 1825, paddlePaint);
         paddlePaint.setColor(0xff0000ff);
+
+        // Draw computer's paddle
+        paddlePaint.setColor(Color.BLACK);
+        g.drawRect(compPaddleLeft, 75, compPaddleRight, 100, paddlePaint);
+        paddlePaint.setColor(0xff0000ff);
+
+        // Draw score card
+        Paint scorePaint = new Paint();
+        scorePaint.setColor(Color.BLACK);
+        scorePaint.setTextSize(50.0f);
+        g.drawText("Your", 100, 900, scorePaint );
+        g.drawText("Score: "+playerScore, 100, 950, scorePaint );
+        g.drawText("Computer's", 1200, 900, scorePaint );
+        g.drawText("Score: "+playerScore, 1200, 950, scorePaint );
     }
 
     public void betweenGameView(Canvas g) {
