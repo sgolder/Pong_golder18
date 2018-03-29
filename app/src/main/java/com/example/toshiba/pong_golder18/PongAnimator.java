@@ -29,9 +29,10 @@ public class PongAnimator implements Animator {
     private float playerPaddleRight = 700;
     private float paddleSize = 100;
 
-    // Properties of computer's paddle
+    // Properties for computer player
     private float compPaddleLeft = 500;
     private float compPaddleRight = 700;
+    private int chanceOfMissing = 6;
 
     // Properties of the ball
     private boolean reverseX = false;
@@ -49,6 +50,8 @@ public class PongAnimator implements Animator {
     private int computerScore = 0;
 
     private boolean betweenGames = false;
+
+    //TODO: create an initialization method?
 
     @Override
     public void tick(Canvas g) {
@@ -109,6 +112,13 @@ public class PongAnimator implements Animator {
                 betweenGameView(g);
             }
         }
+
+        // Computer moving paddle
+        Random rand = new Random();
+        int willMiss = rand.nextInt(chanceOfMissing);
+
+        compPaddleLeft = ballX-paddleSize;
+        compPaddleRight = ballX+paddleSize;
     }
 
     /**
@@ -161,7 +171,7 @@ public class PongAnimator implements Animator {
     public void duringGameView(Canvas g) {
         // Draw walls
         Paint wall = new Paint();
-        wall.setColor(Color.BLACK);
+        wall.setColor(Color.WHITE);
         wall.setStrokeWidth(10.0f);
         g.drawLine(50, 50, 50, 1850, wall);         // left
         g.drawLine(50, 50, 1500, 50, wall);         // top
@@ -170,29 +180,31 @@ public class PongAnimator implements Animator {
 
         // Draw the ball in the correct position.
         Paint ballPaint = new Paint();
-        ballPaint.setColor(Color.rgb(22, 25, 37));
+        ballPaint.setColor(Color.WHITE);
         g.drawCircle(ballX, ballY, 50, ballPaint);
         ballPaint.setColor(0xff0000ff);
 
         // Draw player's paddle
         Paint paddlePaint = new Paint();
-        paddlePaint.setColor(Color.BLACK);
+        paddlePaint.setColor(Color.WHITE);
         g.drawRect(playerPaddleLeft, 1800, playerPaddleRight, 1825, paddlePaint);
         paddlePaint.setColor(0xff0000ff);
 
         // Draw computer's paddle
-        paddlePaint.setColor(Color.BLACK);
+        paddlePaint.setColor(Color.WHITE);
         g.drawRect(compPaddleLeft, 75, compPaddleRight, 100, paddlePaint);
         paddlePaint.setColor(0xff0000ff);
 
         // Draw score card
         Paint scorePaint = new Paint();
-        scorePaint.setColor(Color.BLACK);
+        scorePaint.setColor(Color.WHITE);
         scorePaint.setTextSize(50.0f);
+        /*
         g.drawText("Your", 100, 900, scorePaint );
         g.drawText("Score: "+playerScore, 100, 950, scorePaint );
         g.drawText("Computer's", 1200, 900, scorePaint );
         g.drawText("Score: "+playerScore, 1200, 950, scorePaint );
+        */
     }
 
     public void betweenGameView(Canvas g) {
@@ -210,27 +222,29 @@ public class PongAnimator implements Animator {
         Paint restart = new Paint();
         restart.setColor(Color.BLACK);
         restart.setTextSize(50.0f);
-        g.drawText("Tap screen to begin with new ball",
-                400, 700, restart);
+        //g.drawText("Select difficulty and tap screen to restart",
+        //        400, 400, restart);
         betweenGames = true;
 
         // Draw difficulty mode buttons
-        Paint easyMode = new Paint(); // Easy
-        easyMode.setColor(Color.rgb(142, 168, 195));
-        g.drawRect(125, 100, 525, 200, easyMode);
-        Paint mediumMode = new Paint(); // Medium
-        mediumMode.setColor(Color.rgb( 64, 110, 142));
-        g.drawRect(575, 100, 975, 200, mediumMode);
-        Paint hardMode = new Paint(); // Hard
-        hardMode.setColor(Color.rgb( 35, 57, 91));
-        g.drawRect(1025, 100, 1425, 200, hardMode);
-        // Write text to go on buttons
-        Paint modeText = new Paint();
+        Paint modeText = new Paint(); // Text for buttons
         modeText.setColor(Color.WHITE);
-        modeText.setTextSize(50.0f);
-        g.drawText("Easy", 270, 170, modeText);
-        g.drawText("Medium", 690, 170, modeText);
-        g.drawText("Hard", 1175, 170, modeText);
+        modeText.setTextSize(70.0f);
+
+        Paint easyMode = new Paint(); // Easy
+        easyMode.setColor(Color.rgb(229, 183, 139));
+        g.drawRect(500, 600, 1050, 750, easyMode);
+        g.drawText("E A S Y", 670, 700, modeText);
+
+        Paint mediumMode = new Paint(); // Medium
+        mediumMode.setColor(Color.rgb(221, 141, 117));
+        g.drawRect(500, 850, 1050, 1000, mediumMode);
+        g.drawText("M E D I U M", 600, 950, modeText);
+
+        Paint hardMode = new Paint(); // Hard
+        hardMode.setColor(Color.rgb( 138, 113, 106));
+        g.drawRect(500, 1100, 1050, 1250, hardMode);
+        g.drawText("H A R D", 665, 1200, modeText);
     }
 
     /**
@@ -266,7 +280,7 @@ public class PongAnimator implements Animator {
      */
     @Override
     public int backgroundColor() {
-        return Color.rgb(203, 247, 237);
+        return Color.rgb(208, 206, 186);
     }
 
     @Override
