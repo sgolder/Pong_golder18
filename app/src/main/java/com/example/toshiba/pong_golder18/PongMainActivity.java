@@ -9,8 +9,21 @@ import android.app.Activity;
  * This is the activity for the Pong game. It attaches a PongAnimator to
  * an AnimationSurface.
  *
+ * The pong game consists of a human player competing against a computer
+ * player. Each time a player does not successfully return the ball,
+ * their opponent gets a point. To play at different difficulties,
+ * the user must make their selection after the conclusion of playing
+ * round.
+ *
+ * Enhancements include:
+ * Waiting for user input to restart the game (a)
+ * Allow user to change size of the paddle (a)
+ * Keep a running score of the gameplay (b)
+ * Original pong: playing vs. computer (b)
+ *
  * @author Andrew Nuxoll
  * @author Steven R. Vegdahl
+ * @author Sarah Golder
  * @version July 2013
  *
  */
@@ -27,11 +40,9 @@ public class PongMainActivity extends Activity {
         // Connect the animation surface with the animator
         AnimationSurface mySurface = (AnimationSurface) this
                 .findViewById(R.id.animationSurface);
-        //mySurface.setAnimator(new TestAnimator());
 
-        //My animator
+        // Set surface to be pong animator
         PongAnimator myAnimator = new PongAnimator();
-        //myAnimator.reset();
         mySurface.setAnimator(myAnimator);
     }
 }
