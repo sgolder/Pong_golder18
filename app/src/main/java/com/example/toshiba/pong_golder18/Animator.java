@@ -9,6 +9,7 @@ import android.view.MotionEvent;
  * 
  * @author Steve Vegdahl
  * @author Andrew Nuxoll
+ * @author Sarah Golder
  * @version February 2016
  */
 
